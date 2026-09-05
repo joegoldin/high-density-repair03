@@ -66,6 +66,11 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
   private referenceCandidateRolledBack = false
   private mixedReferenceInputDrcIssueCount?: number
   private mixedReferenceCandidateDrcIssueCount?: number
+  private coupledBroadAttemptedMultipliers: number[] = []
+  private coupledBroadCandidateDrcIssueCounts: number[] = []
+  private coupledBroadCandidateDrcIssueScores: number[] = []
+  private coupledBroadAcceptedMultiplier?: number
+  private coupledBroadPhaseAccepted = false
   private referenceInputSnapshot?: {
     errors: Array<Record<string, unknown>>
     count: number
@@ -78,6 +83,24 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
     }
     if (params.broadPassMultiplier <= 0) {
       throw new Error("broadPassMultiplier must be greater than zero")
+    }
+    if (
+      params.coupledBroadPassMultipliers?.some(
+        (passMultiplier) => !Number.isFinite(passMultiplier),
+      )
+    ) {
+      throw new Error(
+        "coupledBroadPassMultipliers must contain only finite numbers",
+      )
+    }
+    if (
+      params.coupledBroadPassMultipliers?.some(
+        (passMultiplier) => passMultiplier <= 0,
+      )
+    ) {
+      throw new Error(
+        "coupledBroadPassMultipliers must contain only numbers greater than zero",
+      )
     }
     if (!Number.isInteger(params.broadMaxIterations)) {
       throw new Error("broadMaxIterations must be an integer")
@@ -244,6 +267,18 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
       ),
       drcBranchPortfolioMixedSafeTraceLayerPhaseAccepted:
         this.mixedSafeTraceLayerPhaseAccepted,
+      drcBranchPortfolioCoupledBroadPhaseAttempted:
+        this.coupledBroadAttemptedMultipliers.length > 0,
+      drcBranchPortfolioCoupledBroadAttemptedMultipliers:
+        this.coupledBroadAttemptedMultipliers,
+      drcBranchPortfolioCoupledBroadCandidateDrcIssueCounts:
+        this.coupledBroadCandidateDrcIssueCounts,
+      drcBranchPortfolioCoupledBroadCandidateDrcIssueScores:
+        this.coupledBroadCandidateDrcIssueScores,
+      drcBranchPortfolioCoupledBroadAcceptedMultiplier:
+        this.coupledBroadAcceptedMultiplier,
+      drcBranchPortfolioCoupledBroadPhaseAccepted:
+        this.coupledBroadPhaseAccepted,
       drcBranchPortfolioViaInPadPhaseAttempted: Boolean(this.viaInPadSolver),
       drcBranchPortfolioViaInPadMaxIterations:
         this.params.viaInPadMaxIterations,
@@ -283,7 +318,7 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
   ) {
     this.portfolioSelectedSolver = portfolioSelectedSolver
     if (!this.params.enableSafeTraceLayerMoves) {
-      this.startViaInPadPhase(routes, snapshot, portfolioSelectedSolver)
+      this.startCoupledBroadPhase(routes, snapshot, portfolioSelectedSolver)
       return
     }
     this.safeTraceLayerInputRoutes = routes
@@ -303,6 +338,61 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
     })
     this.activeSubSolver = this.safeTraceLayerSolver
     this.phase = "safeTraceLayer"
+  }
+
+  private startCoupledBroadPhase(
+    routes: HighDensityRoute[],
+    snapshot: DrcSnapshot,
+    portfolioSelectedSolver?: GlobalDrcForceImproveSolver,
+  ) {
+    let acceptedRoutes = routes
+    let acceptedSnapshot = snapshot
+
+    for (const passMultiplier of this.params.coupledBroadPassMultipliers ??
+      []) {
+      if (acceptedSnapshot.count === 0) break
+      const candidateRoutes = applyBroadRepulsionForces(
+        this.params.srj,
+        acceptedRoutes,
+        this.params.effort ?? 1,
+        passMultiplier,
+        this.params.connMap,
+        false,
+        false,
+      )
+      const candidateSnapshot = getDrcSnapshot(
+        this.params.srj,
+        candidateRoutes,
+        this.params.drcEvaluator,
+        this.params.connMap,
+        this.autoroutingDrcEngine,
+      )
+      this.coupledBroadAttemptedMultipliers.push(passMultiplier)
+      this.coupledBroadCandidateDrcIssueCounts.push(candidateSnapshot.count)
+      this.coupledBroadCandidateDrcIssueScores.push(
+        candidateSnapshot.issueScore,
+      )
+      if (
+        isBetterDrcSnapshot(
+          candidateSnapshot,
+          getViaDrcIssueCount(candidateSnapshot),
+          acceptedSnapshot.count,
+          acceptedSnapshot.issueScore,
+          getViaDrcIssueCount(acceptedSnapshot),
+        )
+      ) {
+        acceptedRoutes = candidateRoutes
+        acceptedSnapshot = candidateSnapshot
+        this.coupledBroadAcceptedMultiplier = passMultiplier
+        this.coupledBroadPhaseAccepted = true
+      }
+    }
+
+    this.startViaInPadPhase(
+      acceptedRoutes,
+      acceptedSnapshot,
+      portfolioSelectedSolver,
+    )
   }
 
   private startViaInPadPhase(
@@ -446,6 +536,12 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
           this.baselineSnapshot,
           this.baselineSolver,
         )
+      } else if (this.params.coupledBroadPassMultipliers !== undefined) {
+        this.startCoupledBroadPhase(
+          baselineRoutes,
+          this.baselineSnapshot,
+          this.baselineSolver,
+        )
       } else {
         this.startBroadBranch()
       }
@@ -516,7 +612,11 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
       const acceptedSolver = this.safeTraceLayerPhaseAccepted
         ? this.safeTraceLayerSolver
         : this.portfolioSelectedSolver
-      if (acceptedSnapshot.count > 0 && !this.broadInputSnapshot) {
+      if (
+        acceptedSnapshot.count > 0 &&
+        !this.broadInputSnapshot &&
+        this.params.coupledBroadPassMultipliers === undefined
+      ) {
         this.startBroadBranch()
         return
       }
@@ -531,7 +631,11 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
         )
         return
       }
-      this.startViaInPadPhase(acceptedRoutes, acceptedSnapshot, acceptedSolver)
+      this.startCoupledBroadPhase(
+        acceptedRoutes,
+        acceptedSnapshot,
+        acceptedSolver,
+      )
       return
     }
 
@@ -564,7 +668,7 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
       }
       this.mixedSafeTraceLayerPhaseAccepted =
         doesNotRegressLegacyDrc && improvesReferenceDrc
-      this.startViaInPadPhase(
+      this.startCoupledBroadPhase(
         this.mixedSafeTraceLayerPhaseAccepted
           ? mixedRoutes
           : this.legacySafeTraceLayerRoutes!,

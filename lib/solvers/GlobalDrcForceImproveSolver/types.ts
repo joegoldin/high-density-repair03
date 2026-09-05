@@ -75,6 +75,7 @@ export type GlobalDrcBranchPortfolioSolverParams =
   GlobalDrcForceImproveSolverParams & {
     broadMaxIterations: number
     broadPassMultiplier: number
+    coupledBroadPassMultipliers?: readonly number[]
     viaInPadDrcEvaluator?: DrcEvaluator
     viaInPadMaxIterations?: number
   }
