@@ -6,6 +6,7 @@ import { GlobalDrcForceImproveSolver } from "./GlobalDrcForceImproveSolver"
 import { RELAXED_DRC_OPTIONS } from "./drcPresets"
 import { getDrcSnapshot } from "./drc-snapshot"
 import {
+  applyDrcErrorForces,
   applyBroadRepulsionForces,
   cloneRoutes,
   getNonViaPadDrcIssueCount,
@@ -73,6 +74,8 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
   private coupledBroadCandidateDrcIssueScores: number[] = []
   private coupledBroadAcceptedMultiplier?: number
   private coupledBroadPhaseAccepted = false
+  private coupledBroadSameNetViaCleanupAttempted = false
+  private coupledBroadSameNetViaCleanupAccepted = false
   private referenceInputSnapshot?: {
     errors: Array<Record<string, unknown>>
     count: number
@@ -281,6 +284,10 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
         this.coupledBroadAcceptedMultiplier,
       drcBranchPortfolioCoupledBroadPhaseAccepted:
         this.coupledBroadPhaseAccepted,
+      drcBranchPortfolioCoupledBroadSameNetViaCleanupAttempted:
+        this.coupledBroadSameNetViaCleanupAttempted,
+      drcBranchPortfolioCoupledBroadSameNetViaCleanupAccepted:
+        this.coupledBroadSameNetViaCleanupAccepted,
       drcBranchPortfolioViaInPadPhaseAttempted: Boolean(this.viaInPadSolver),
       drcBranchPortfolioViaInPadMaxIterations:
         this.params.viaInPadMaxIterations,
@@ -388,6 +395,42 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
         acceptedSnapshot = candidateSnapshot
         this.coupledBroadAcceptedMultiplier = passMultiplier
         this.coupledBroadPhaseAccepted = true
+      }
+    }
+
+    const sameNetViaErrors = acceptedSnapshot.errors.filter(
+      (error) =>
+        (error.type === "pcb_via_clearance_error" ||
+          error.error_type === "pcb_via_clearance_error") &&
+        error.pcb_via_pair_net_relation === "same_net",
+    )
+    if (this.coupledBroadPhaseAccepted && sameNetViaErrors.length > 0) {
+      this.coupledBroadSameNetViaCleanupAttempted = true
+      const cleanupRoutes = cloneRoutes(acceptedRoutes)
+      const changed = applyDrcErrorForces(
+        this.params.srj,
+        cleanupRoutes,
+        sameNetViaErrors,
+        acceptedSnapshot.traceRouteIndexById,
+        1,
+        this.params.connMap,
+        true,
+        true,
+      )
+      if (changed) {
+        const materializedCleanupRoutes = materializeRoutes(cleanupRoutes)
+        const cleanupSnapshot = getDrcSnapshot(
+          this.params.srj,
+          materializedCleanupRoutes,
+          this.params.drcEvaluator,
+          this.params.connMap,
+          this.autoroutingDrcEngine,
+        )
+        if (isDrcSnapshotCountBetter(cleanupSnapshot, acceptedSnapshot)) {
+          acceptedRoutes = materializedCleanupRoutes
+          acceptedSnapshot = cleanupSnapshot
+          this.coupledBroadSameNetViaCleanupAccepted = true
+        }
       }
     }
 
