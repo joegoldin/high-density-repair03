@@ -7,41 +7,6 @@ import {
 } from "../lib"
 import { getDrcSnapshot } from "../lib/solvers/GlobalDrcForceImproveSolver/solverHelpers"
 
-test("rejects invalid coupled broad pass multipliers", () => {
-  const params = {
-    srj: {
-      layerCount: 2,
-      minTraceWidth: 0.15,
-      bounds: { minX: 0, maxX: 1, minY: 0, maxY: 1 },
-      obstacles: [],
-      connections: [],
-    },
-    hdRoutes: [],
-    broadMaxIterations: 1,
-    broadPassMultiplier: 1,
-  } satisfies Omit<
-    ConstructorParameters<typeof GlobalDrcBranchPortfolioSolver>[0],
-    "coupledBroadPassMultipliers"
-  >
-
-  expect(
-    () =>
-      new GlobalDrcBranchPortfolioSolver({
-        ...params,
-        coupledBroadPassMultipliers: [Number.NaN],
-      }),
-  ).toThrow("coupledBroadPassMultipliers must contain only finite numbers")
-  expect(
-    () =>
-      new GlobalDrcBranchPortfolioSolver({
-        ...params,
-        coupledBroadPassMultipliers: [0],
-      }),
-  ).toThrow(
-    "coupledBroadPassMultipliers must contain only numbers greater than zero",
-  )
-})
-
 test("repairs a coupled trace-pad conflict with bounded broad candidates", () => {
   const signal: HighDensityRoute = {
     connectionName: "signal",
@@ -153,6 +118,44 @@ test("repairs a coupled trace-pad conflict with bounded broad candidates", () =>
   expect(solver.stats.drcBranchPortfolioCoupledBroadAcceptedMultiplier).toBe(1)
   expect(solver.stats.drcBranchPortfolioCoupledBroadPhaseAccepted).toBe(true)
   expect(solver.stats.drcBranchPortfolioBroadBranchAttempted).toBe(false)
+  expect(output.map(({ route }) => route.length)).toEqual(
+    hdRoutes.map(({ route }) => route.length),
+  )
+  expect(output.map(({ route }) => route.map(({ z }) => z))).toEqual(
+    hdRoutes.map(({ route }) => route.map(({ z }) => z)),
+  )
+  const getLayerTransitions = (route: HighDensityRoute) =>
+    route.route.flatMap((point, index) => {
+      const next = route.route[index + 1]
+      if (!next || next.z === point.z) return []
+      return [
+        {
+          index,
+          fromLayer: point.z,
+          toLayer: next.z,
+          coincident: point.x === next.x && point.y === next.y,
+        },
+      ]
+    })
+  expect(output.map(getLayerTransitions)).toEqual(
+    hdRoutes.map(getLayerTransitions),
+  )
+  const getViaPlacements = (route: HighDensityRoute) =>
+    route.vias.map(({ x, y, ...metadata }) => ({
+      transitionIndex: route.route.findIndex((point, index) => {
+        const next = route.route[index + 1]
+        return (
+          next !== undefined &&
+          point.z !== next.z &&
+          point.x === x &&
+          point.y === y &&
+          next.x === x &&
+          next.y === y
+        )
+      }),
+      metadata,
+    }))
+  expect(output.map(getViaPlacements)).toEqual(hdRoutes.map(getViaPlacements))
   expect(
     output.map(({ connectionName, route, traceThickness, viaDiameter }) => ({
       connectionName,

@@ -9,6 +9,8 @@ import {
   applyBroadRepulsionForces,
   cloneRoutes,
   getNonViaPadDrcIssueCount,
+  getRepairDrcIssueCount,
+  getRepairDrcIssueScore,
   hasNewDrcErrorIdentities,
   getViaDrcIssueCount,
   isBetterDrcSnapshot,
@@ -376,9 +378,10 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
         isBetterDrcSnapshot(
           candidateSnapshot,
           getViaDrcIssueCount(candidateSnapshot),
-          acceptedSnapshot.count,
-          acceptedSnapshot.issueScore,
+          getRepairDrcIssueCount(acceptedSnapshot),
+          getRepairDrcIssueScore(acceptedSnapshot),
           getViaDrcIssueCount(acceptedSnapshot),
+          acceptedSnapshot,
         )
       ) {
         acceptedRoutes = candidateRoutes
