@@ -1941,6 +1941,7 @@ const insertDetourPointAwayFromPoint = (
   }
   const detourPoint = {
     ...route.route[segment.startIndex]!,
+    pcb_port_id: undefined,
     x: projection.x + detourTranslation.x,
     y: projection.y + detourTranslation.y,
   }
@@ -2218,6 +2219,7 @@ const moveSegmentAwayFromObstacle = (
       ? [
           {
             ...route.route[segment.startIndex]!,
+            pcb_port_id: undefined,
             x: obstacle.center.x - halfWidth - requiredDistance,
             y:
               obstacle.center.y +
@@ -2225,6 +2227,7 @@ const moveSegmentAwayFromObstacle = (
           },
           {
             ...route.route[segment.startIndex]!,
+            pcb_port_id: undefined,
             x: obstacle.center.x + halfWidth + requiredDistance,
             y:
               obstacle.center.y +
@@ -2234,6 +2237,7 @@ const moveSegmentAwayFromObstacle = (
       : [
           {
             ...route.route[segment.startIndex]!,
+            pcb_port_id: undefined,
             x:
               obstacle.center.x +
               repulsion.direction.x * (halfWidth + requiredDistance),
@@ -2241,6 +2245,7 @@ const moveSegmentAwayFromObstacle = (
           },
           {
             ...route.route[segment.startIndex]!,
+            pcb_port_id: undefined,
             x:
               obstacle.center.x +
               repulsion.direction.x * (halfWidth + requiredDistance),
