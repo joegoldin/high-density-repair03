@@ -156,6 +156,14 @@ const createSimplifiedTraces = (
 }
 
 const getDrcErrorSeverity = (error: Record<string, unknown>) => {
+  const minimumClearance = error.minimum_clearance
+  const actualClearance = error.actual_clearance
+  if (
+    typeof minimumClearance === "number" && Number.isFinite(minimumClearance) &&
+    typeof actualClearance === "number" && Number.isFinite(actualClearance)
+  ) {
+    return Math.max(0, minimumClearance - actualClearance)
+  }
   const message = typeof error.message === "string" ? error.message : ""
   const gapMatch = message.match(/gap: (-?\d+(?:\.\d+)?)mm/)
   const requiredMatch = message.match(/required: (-?\d+(?:\.\d+)?)mm/)
