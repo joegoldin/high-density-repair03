@@ -56,6 +56,10 @@ const cloneRoute = (route: HighDensityRoute): MutableRoute => ({
 export const cloneRoutes = (routes: HighDensityRoute[]): MutableRoute[] =>
   routes.map(cloneRoute)
 
+type RoutePointWithTraceThickness = MutableRoute["route"][number] & {
+  traceThickness?: number
+}
+
 export const cloneRoutesForIndexes = (
   routes: HighDensityRoute[],
   routeIndexes: readonly number[],
@@ -418,8 +422,12 @@ const collectSegmentsForRoute = (
   const segments: Segment[] = []
 
   for (let index = 0; index < route.route.length - 1; index += 1) {
-    const start = route.route[index]
-    const end = route.route[index + 1]
+    const start = route.route[index] as
+      | RoutePointWithTraceThickness
+      | undefined
+    const end = route.route[index + 1] as
+      | RoutePointWithTraceThickness
+      | undefined
     if (!start || !end) continue
     if (start.z !== end.z || areSameXY(start, end)) continue
     segments.push({
@@ -430,7 +438,12 @@ const collectSegmentsForRoute = (
       start,
       end,
       z: start.z,
-      radius: (route.traceThickness ?? 0.1) / 2,
+      radius:
+        Math.max(
+          route.traceThickness ?? 0.1,
+          start.traceThickness ?? 0,
+          end.traceThickness ?? 0,
+        ) / 2,
     })
   }
 
@@ -2840,12 +2853,22 @@ const pushMovablesAwayFromObstacles = (
   connMap?: ConnectivityMap,
 ) => {
   let changed = false
-  const requiredTraceObstacleDistance =
-    srj.minTraceWidth / 2 + getTraceToPadEdgeClearance(srj) + CLEARANCE_SLACK
-  const requiredViaObstacleDistance =
-    (srj.minViaDiameter ?? 0.3) / 2 +
-    getViaEdgeToPadEdgeClearance(srj)! +
-    CLEARANCE_SLACK
+  const traceObstacleClearance =
+    getTraceToPadEdgeClearance(srj) + CLEARANCE_SLACK
+  const viaObstacleClearance =
+    getViaEdgeToPadEdgeClearance(srj)! + CLEARANCE_SLACK
+  const maxSegmentRadius = segments.reduce(
+    (currentMax, segment) => Math.max(currentMax, segment.radius),
+    srj.minTraceWidth / 2,
+  )
+  const maxViaRadius = vias.reduce(
+    (currentMax, via) => Math.max(currentMax, via.radius),
+    (srj.minViaDiameter ?? 0.3) / 2,
+  )
+  const requiredTraceObstacleSearchDistance =
+    maxSegmentRadius + traceObstacleClearance
+  const requiredViaObstacleSearchDistance =
+    maxViaRadius + viaObstacleClearance
 
   for (const obstacle of srj.obstacles) {
     if (obstacle.isCopperPour) continue
@@ -2853,18 +2876,15 @@ const pushMovablesAwayFromObstacles = (
 
     const nearbyViaIndexes = getSpatialCandidateIndexes(
       viaSpatialIndex,
-      expandBounds2d(obstacleBounds, requiredViaObstacleDistance),
+      expandBounds2d(obstacleBounds, requiredViaObstacleSearchDistance),
       spatialCellSize,
     )
     for (const viaIndex of nearbyViaIndexes) {
       const via = vias[viaIndex]
       if (!via) continue
       if (obstacleSharesNet(via.rootConnectionName, obstacle, connMap)) continue
-      const repulsion = getRectRepulsion(
-        via,
-        obstacle,
-        requiredViaObstacleDistance,
-      )
+      const requiredDistance = via.radius + viaObstacleClearance
+      const repulsion = getRectRepulsion(via, obstacle, requiredDistance)
       if (!repulsion) continue
       const move = Math.min(BROAD_MAX_MOVE, repulsion.penetration)
       changed =
@@ -2879,7 +2899,7 @@ const pushMovablesAwayFromObstacles = (
 
     const nearbySegmentIndexes = getSpatialCandidateIndexes(
       segmentSpatialIndex,
-      expandBounds2d(obstacleBounds, requiredTraceObstacleDistance),
+      expandBounds2d(obstacleBounds, requiredTraceObstacleSearchDistance),
       spatialCellSize,
     )
     for (const segmentIndex of nearbySegmentIndexes) {
@@ -2891,10 +2911,11 @@ const pushMovablesAwayFromObstacles = (
       ) {
         continue
       }
+      const requiredDistance = segment.radius + traceObstacleClearance
       const repulsion = getSegmentRectRepulsion(
         segment,
         obstacle,
-        requiredTraceObstacleDistance,
+        requiredDistance,
       )
       if (!repulsion) continue
       const move = Math.min(BROAD_MAX_MOVE, repulsion.penetration)
