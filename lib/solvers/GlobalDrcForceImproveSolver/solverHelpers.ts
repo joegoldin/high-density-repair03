@@ -56,6 +56,59 @@ const cloneRoute = (route: HighDensityRoute): MutableRoute => ({
 export const cloneRoutes = (routes: HighDensityRoute[]): MutableRoute[] =>
   routes.map(cloneRoute)
 
+export const doRoutesPreservePcbPortTerminals = (
+  inputRoutes: HighDensityRoute[],
+  candidateRoutes: HighDensityRoute[],
+) => {
+  const getTerminalPositions = (routes: HighDensityRoute[]) => {
+    const positions = new Map<
+      string,
+      { x: number; y: number; z: number; isEndpoint: boolean }
+    >()
+    for (const route of routes) {
+      for (let pointIndex = 0; pointIndex < route.route.length; pointIndex++) {
+        const point = route.route[pointIndex]!
+        if (!point.pcb_port_id) continue
+        const key = `${route.connectionName}\0${point.pcb_port_id}`
+        if (positions.has(key)) return undefined
+        positions.set(key, {
+          x: point.x,
+          y: point.y,
+          z: point.z,
+          isEndpoint:
+            pointIndex === 0 || pointIndex === route.route.length - 1,
+        })
+      }
+    }
+    return positions
+  }
+
+  const inputTerminals = getTerminalPositions(inputRoutes)
+  const candidateTerminals = getTerminalPositions(candidateRoutes)
+  if (
+    !inputTerminals ||
+    !candidateTerminals ||
+    inputTerminals.size !== candidateTerminals.size
+  ) {
+    return false
+  }
+
+  for (const [key, inputTerminal] of inputTerminals) {
+    const candidateTerminal = candidateTerminals.get(key)
+    if (
+      !candidateTerminal ||
+      !inputTerminal.isEndpoint ||
+      !candidateTerminal.isEndpoint ||
+      inputTerminal.z !== candidateTerminal.z ||
+      Math.abs(inputTerminal.x - candidateTerminal.x) > COORDINATE_EPSILON ||
+      Math.abs(inputTerminal.y - candidateTerminal.y) > COORDINATE_EPSILON
+    ) {
+      return false
+    }
+  }
+  return true
+}
+
 type RoutePointWithTraceThickness = MutableRoute["route"][number] & {
   traceThickness?: number
 }

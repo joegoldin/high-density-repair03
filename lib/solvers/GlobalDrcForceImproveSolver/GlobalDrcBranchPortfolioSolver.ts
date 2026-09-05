@@ -9,6 +9,7 @@ import {
   applyDrcErrorForces,
   applyBroadRepulsionForces,
   cloneRoutes,
+  doRoutesPreservePcbPortTerminals,
   getNonViaPadDrcIssueCount,
   getRepairDrcIssueCount,
   getRepairDrcIssueScore,
@@ -76,6 +77,7 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
   private coupledBroadPhaseAccepted = false
   private coupledBroadSameNetViaCleanupAttempted = false
   private coupledBroadSameNetViaCleanupAccepted = false
+  private terminalCandidateRolledBack = false
   private referenceInputSnapshot?: {
     errors: Array<Record<string, unknown>>
     count: number
@@ -222,6 +224,18 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
   ) {
     let acceptedRoutes = routes
     let acceptedSnapshot = snapshot
+    let acceptedSolver = selectedSolver
+    if (
+      !doRoutesPreservePcbPortTerminals(
+        this.guardedInputHdRoutes,
+        acceptedRoutes,
+      )
+    ) {
+      acceptedRoutes = this.guardedInputHdRoutes
+      acceptedSnapshot = this.inputSnapshot!
+      acceptedSolver = undefined
+      this.terminalCandidateRolledBack = true
+    }
     if (this.params.referenceDrcEvaluator) {
       const referenceInputSnapshot = this.referenceInputSnapshot!
       const referenceCandidateSnapshot =
@@ -242,13 +256,13 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
       }
     }
     this.outputHdRoutes = acceptedRoutes
-    this.selectedSolver = selectedSolver
+    this.selectedSolver = acceptedSolver
     this.activeSubSolver = null
     this.phase = "done"
     this.progress = 1
     this.stats = {
       ...(this.portfolioSelectedSolver?.stats ?? {}),
-      ...(selectedSolver?.stats ?? {}),
+      ...(acceptedSolver?.stats ?? {}),
       finalDrcIssueCount: acceptedSnapshot.count,
       drcBranchPortfolioInitialDrcIssueCount:
         this.inputSnapshot?.count ?? snapshot.count,
@@ -288,6 +302,8 @@ export class GlobalDrcBranchPortfolioSolver extends BaseSolver {
         this.coupledBroadSameNetViaCleanupAttempted,
       drcBranchPortfolioCoupledBroadSameNetViaCleanupAccepted:
         this.coupledBroadSameNetViaCleanupAccepted,
+      drcBranchPortfolioTerminalCandidateRolledBack:
+        this.terminalCandidateRolledBack,
       drcBranchPortfolioViaInPadPhaseAttempted: Boolean(this.viaInPadSolver),
       drcBranchPortfolioViaInPadMaxIterations:
         this.params.viaInPadMaxIterations,
