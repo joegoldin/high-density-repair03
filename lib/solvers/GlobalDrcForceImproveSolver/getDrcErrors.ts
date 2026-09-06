@@ -4,6 +4,7 @@ import {
   checkSameNetViaSpacing,
 } from "@tscircuit/checks"
 import type { Point } from "graphics-debug"
+import { getFullConnectivityMapFromCircuitJson } from "circuit-json-to-connectivity-map"
 
 type CircuitJson = Parameters<typeof checkEachPcbTraceNonOverlapping>[0]
 type CircuitJsonElement = CircuitJson[number]
@@ -45,19 +46,25 @@ export const getDrcErrors = (
   circuitJson: CircuitJson,
   options: GetDrcErrorsOptions = {},
 ): GetDrcErrorsResult => {
+  // Checks infer missing endpoint IDs geometrically; retain the supplied net identity.
+  const checkedCircuitJson = structuredClone(circuitJson)
+  const connMap = getFullConnectivityMapFromCircuitJson(checkedCircuitJson)
   const viaClearance = Math.max(
     options.viaClearance ?? MIN_VIA_TO_VIA_CLEARANCE,
     MIN_VIA_TO_VIA_CLEARANCE,
   )
   const traceErrors = checkEachPcbTraceNonOverlapping(
-    circuitJson,
-    getSpacingOptions(options.traceClearance),
+    checkedCircuitJson,
+    { ...getSpacingOptions(options.traceClearance), connMap },
   )
   const viaErrors = [
-    ...checkSameNetViaSpacing(circuitJson, getSpacingOptions(viaClearance)),
+    ...checkSameNetViaSpacing(checkedCircuitJson, {
+      ...getSpacingOptions(viaClearance),
+      connMap,
+    }),
     ...checkDifferentNetViaSpacing(
-      circuitJson,
-      getSpacingOptions(viaClearance),
+      checkedCircuitJson,
+      { ...getSpacingOptions(viaClearance), connMap },
     ),
   ]
 

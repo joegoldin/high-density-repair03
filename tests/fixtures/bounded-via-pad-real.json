@@ -1,0 +1,883 @@
+{
+  "bug49": {
+    "srj": {
+      "bounds": {
+        "maxX": 35.3,
+        "maxY": 27.7,
+        "minX": -35.3,
+        "minY": -27.7
+      },
+      "layerCount": 4,
+      "minTraceWidth": 0.15,
+      "minViaDiameter": 0.3,
+      "minViaEdgeToPadEdgeClearance": 0.1,
+      "obstacles": [
+        {
+          "type": "rect",
+          "width": 0.2800096,
+          "center": {
+            "x": -11.250061999999957,
+            "y": 12.977516000000037
+          },
+          "height": 0.6500114,
+          "layers": [
+            "top"
+          ],
+          "connectedTo": [
+            "pcb_smtpad_39",
+            "connectivity_net169",
+            "source_trace_66",
+            "source_port_89",
+            "source_trace_56",
+            "source_port_57",
+            "source_net_34",
+            "pcb_smtpad_7",
+            "pcb_port_57",
+            "pcb_smtpad_39",
+            "pcb_port_89"
+          ],
+          "zLayers": [
+            0
+          ],
+          "__zLayers": [
+            0
+          ],
+          "circuitJsonMetadata": {
+            "pcb_smtpad_id": "pcb_smtpad_39"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "name": "source_net_36_mst1",
+          "rootConnectionName": "source_net_36",
+          "pointsToConnect": []
+        },
+        {
+          "name": "source_net_1_mst9",
+          "rootConnectionName": "source_net_1",
+          "pointsToConnect": []
+        }
+      ]
+    },
+    "routes": [
+      {
+        "connectionName": "source_net_36_mst1",
+        "rootConnectionName": "source_net_36",
+        "traceThickness": 0.15,
+        "viaDiameter": 0.3,
+        "route": [
+          {
+            "x": -8.5,
+            "y": 17.96621600000003,
+            "z": 0,
+            "traceThickness": 0.15,
+            "pcb_port_id": "pcb_port_106"
+          },
+          {
+            "x": -8.5,
+            "y": 18.31486521273345,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -8.960507359551565,
+            "y": 18.77537257228502,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -8.960507359551565,
+            "y": 18.960507359551563,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -9,
+            "y": 19,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -9,
+            "y": 19,
+            "z": 3,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -9,
+            "y": 17.336498918914984,
+            "z": 3,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -11.889883087425561,
+            "y": 14.44661583148942,
+            "z": 3,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -11.889883087425561,
+            "y": 13.95048078509738,
+            "z": 3,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -11.535043581993039,
+            "y": 13.595641279664857,
+            "z": 3,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -11.535043581993039,
+            "y": 13.484340127997852,
+            "z": 3,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -11.566860709990891,
+            "y": 13.452523,
+            "z": 3,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -11.566860709990891,
+            "y": 13.452523,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -11.566860709990891,
+            "y": 13.161139290009109,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -11.749934000000053,
+            "y": 12.977516000000037,
+            "z": 0,
+            "traceThickness": 0.15,
+            "pcb_port_id": "pcb_port_90"
+          }
+        ],
+        "vias": [
+          {
+            "x": -9,
+            "y": 19
+          },
+          {
+            "x": -11.566860709990891,
+            "y": 13.452523
+          }
+        ],
+        "jumpers": [],
+        "startPcbPortId": "pcb_port_106",
+        "endPcbPortId": "pcb_port_90"
+      },
+      {
+        "connectionName": "source_net_1_mst9",
+        "rootConnectionName": "source_net_1",
+        "traceThickness": 0.15,
+        "viaDiameter": 0.3,
+        "route": [
+          {
+            "x": -11.40856057885573,
+            "y": 14.04424048360099,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -12.25,
+            "y": 13.4,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -12.250060000000076,
+            "y": 12.977516000000037,
+            "z": 0,
+            "traceThickness": 0.15,
+            "pcb_port_id": "pcb_port_91"
+          }
+        ],
+        "vias": [],
+        "jumpers": [],
+        "endPcbPortId": "pcb_port_91"
+      }
+    ]
+  },
+  "bug88": {
+    "srj": {
+      "bounds": {
+        "minX": -30,
+        "maxX": 30,
+        "minY": -30,
+        "maxY": 30
+      },
+      "layerCount": 2,
+      "minTraceWidth": 0.15,
+      "minViaDiameter": 0.3,
+      "minViaEdgeToPadEdgeClearance": 0.1,
+      "obstacles": [
+        {
+          "type": "rect",
+          "width": 0.1999996,
+          "center": {
+            "x": 1.7699464999999446,
+            "y": -11.842155
+          },
+          "height": 0.850011,
+          "layers": [
+            "bottom"
+          ],
+          "componentId": "pcb_component_18",
+          "connectedTo": [
+            "pcb_smtpad_39",
+            "connectivity_net365",
+            "source_trace_133",
+            "source_port_104",
+            "source_port_279",
+            "pcb_smtpad_39",
+            "pcb_port_86",
+            "pcb_smtpad_226",
+            "pcb_port_245"
+          ],
+          "circuitJsonMetadata": {
+            "pcb_port_id": "pcb_port_86",
+            "pcb_smtpad_id": "pcb_smtpad_39",
+            "source_port_name": "USB_DM"
+          },
+          "zLayers": [
+            1
+          ],
+          "__zLayers": [
+            1
+          ]
+        }
+      ],
+      "connections": [
+        {
+          "name": "source_trace_133",
+          "rootConnectionName": "source_trace_133",
+          "pointsToConnect": []
+        },
+        {
+          "name": "source_trace_105_mst4",
+          "rootConnectionName": "source_trace_105",
+          "pointsToConnect": []
+        },
+        {
+          "name": "source_trace_105_mst0",
+          "rootConnectionName": "source_trace_105",
+          "pointsToConnect": []
+        }
+      ]
+    },
+    "routes": [
+      {
+        "connectionName": "source_trace_133",
+        "rootConnectionName": "source_trace_133",
+        "traceThickness": 0.15,
+        "viaDiameter": 0.3,
+        "route": [
+          {
+            "x": 1.7699464999999446,
+            "y": -11.842155,
+            "z": 1,
+            "traceThickness": 0.15,
+            "pcb_port_id": "pcb_port_86"
+          },
+          {
+            "x": 1.7807572396013,
+            "y": -11.346448667133567,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.7979029441216348,
+            "y": -11.333165387847142,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.7007540618139265,
+            "y": -11.072409962105299,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.3811732234446552,
+            "y": -10.974137485107558,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.16687065359229,
+            "y": -11.125050139246605,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.968,
+            "y": -11.18,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.768,
+            "y": -11.1241495,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.564,
+            "y": -11.2121495,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.46852881946875086,
+            "y": -10.980565647522301,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.4726875518509282,
+            "y": -10.985846029590945,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -0.2081045542124467,
+            "y": -10.942436268696145,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -0.20437936514467206,
+            "y": -10.9799775091193,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -0.36647723400611965,
+            "y": -10.602112046089642,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -0.46911527038855944,
+            "y": -10.553222418490067,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -0.9901735762243168,
+            "y": -10.761154533248604,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -0.9901735762243168,
+            "y": -10.761154533248604,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.2456143551562135,
+            "y": -10.81128061767694,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.476419533479528,
+            "y": -10.830623149786774,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.7095266927305393,
+            "y": -10.782311353604944,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.8852525313279664,
+            "y": -10.728925232265098,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -2.2135774440151073,
+            "y": -10.649160081149308,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -2.228551140381398,
+            "y": -10.646193257194918,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -3.9705012132817705,
+            "y": -10.594264427169508,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -5.415005500000063,
+            "y": -9.186334,
+            "z": 1,
+            "traceThickness": 0.15,
+            "pcb_port_id": "pcb_port_245"
+          }
+        ],
+        "vias": [],
+        "jumpers": [],
+        "startPcbPortId": "pcb_port_86",
+        "endPcbPortId": "pcb_port_245"
+      },
+      {
+        "connectionName": "source_trace_105_mst4",
+        "rootConnectionName": "source_trace_105",
+        "traceThickness": 0.15,
+        "viaDiameter": 0.3,
+        "route": [
+          {
+            "x": 1.3701504999999445,
+            "y": -11.842155,
+            "z": 1,
+            "traceThickness": 0.15,
+            "pcb_port_id": "pcb_port_85"
+          },
+          {
+            "x": 1.3701504999999445,
+            "y": -11.436392965047428,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.343274455946917,
+            "y": -11.4095169209944,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.3458604153669798,
+            "y": -11.417148499999998,
+            "z": 1,
+            "connectionName": "source_trace_105_mst4",
+            "rootConnectionName": "source_trace_105",
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.34609095444053,
+            "y": -11.417148499999998,
+            "z": 1,
+            "connectionName": "source_trace_105_mst4",
+            "rootConnectionName": "source_trace_105",
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.3455471852573901,
+            "y": -11.417148499999998,
+            "z": 1,
+            "connectionName": "source_trace_105_mst4",
+            "rootConnectionName": "source_trace_105",
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.3452396428414244,
+            "y": -11.417148499999998,
+            "z": 1,
+            "connectionName": "source_trace_105_mst4",
+            "rootConnectionName": "source_trace_105",
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.3459993940882904,
+            "y": -11.417148499999998,
+            "z": 1,
+            "connectionName": "source_trace_105_mst4",
+            "rootConnectionName": "source_trace_105",
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.4406409470972337,
+            "y": -11.348132296447515,
+            "z": 1,
+            "connectionName": "source_trace_105_mst4",
+            "rootConnectionName": "source_trace_105",
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.4406409470972337,
+            "y": -11.348132296447515,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.8307051151398671,
+            "y": -11.348132296447515,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.20389963815016154,
+            "y": -10.72132681945781,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.20389963815016154,
+            "y": -10.720746051069051,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.10485953487422138,
+            "y": -10.621705947793112,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.10485953487422138,
+            "y": -10.621705947793112,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -0.5060914467162305,
+            "y": -10.008901416703784,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -0.8875448456420734,
+            "y": -9.995378515956578,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.0018835579014136,
+            "y": -10.010544924187961,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.1742351874951162,
+            "y": -10.182848397792224,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.8822745440042707,
+            "y": -10.111503327585332,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.8822745440042707,
+            "y": -10.111503327585332,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.8680229079026665,
+            "y": -10.391599483722269,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.842966366476171,
+            "y": -10.416656025148765,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.8082110775267903,
+            "y": -10.592038825598024,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.7897731633268361,
+            "y": -10.657175185864753,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.7884593441427175,
+            "y": -12.59479798837435,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -1.992509668656234,
+            "y": -12.811771826981467,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -2.719395212204789,
+            "y": -12.801734776213301,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -2.732993439060727,
+            "y": -12.807811123781784,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -2.8961888762182153,
+            "y": -12.807811123781784,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -2.9299990727920893,
+            "y": -12.779680602359203,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -2.9299990727920893,
+            "y": -12.779680602359203,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -2.93,
+            "y": -12.723961721669168,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -3.7746001494763437,
+            "y": -11.879361572192824,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -3.7746001494763437,
+            "y": -11.733399850523657,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -3.826,
+            "y": -11.682,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -3.826,
+            "y": -11.682,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -4.658861799810451,
+            "y": -10.84913820018955,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -5.9687084265903385,
+            "y": -10.84913820018955,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -6.03386179981045,
+            "y": -10.84913820018955,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -6.104,
+            "y": -10.779,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -6.104,
+            "y": -10.779,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -6.104,
+            "y": -9.584999999999999,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": -6.505005500000053,
+            "y": -9.183634000000001,
+            "z": 1,
+            "traceThickness": 0.15,
+            "pcb_port_id": "pcb_port_204"
+          }
+        ],
+        "vias": [
+          {
+            "x": 1.4406409470972337,
+            "y": -11.348132296447515
+          },
+          {
+            "x": 0.10485953487422138,
+            "y": -10.621705947793112
+          },
+          {
+            "x": -1.8822745440042707,
+            "y": -10.111503327585332
+          },
+          {
+            "x": -2.9299990727920893,
+            "y": -12.779680602359203
+          },
+          {
+            "x": -3.826,
+            "y": -11.682
+          },
+          {
+            "x": -6.104,
+            "y": -10.779
+          }
+        ],
+        "jumpers": [],
+        "startPcbPortId": "pcb_port_85",
+        "endPcbPortId": "pcb_port_204"
+      },
+      {
+        "connectionName": "source_trace_105_mst0",
+        "rootConnectionName": "source_trace_105",
+        "traceThickness": 0.15,
+        "viaDiameter": 0.3,
+        "route": [
+          {
+            "x": 3.3701464999999446,
+            "y": -11.842155,
+            "z": 1,
+            "traceThickness": 0.15,
+            "pcb_port_id": "pcb_port_90"
+          },
+          {
+            "x": 3.3701464999999446,
+            "y": -9.564098182863278,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 2.8841890211125363,
+            "y": -9.078140703975869,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.6484247786914634,
+            "y": -9.078140703975869,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.2243262439490754,
+            "y": -10.502239238718257,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.2243262439490754,
+            "y": -10.502239238718257,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.10485953487422138,
+            "y": -10.621705947793112,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.10485953487422138,
+            "y": -10.621705947793112,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 0.7156140008561664,
+            "y": -10.621705947793112,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.2820370717681009,
+            "y": -11.188129018705046,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.2820370717681009,
+            "y": -11.189528421118382,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.4406409470972337,
+            "y": -11.348132296447515,
+            "z": 0,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.4406409470972337,
+            "y": -11.348132296447515,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.37,
+            "y": -11.505875944127812,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.37,
+            "y": -11.51207711258068,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.37,
+            "y": -11.842,
+            "z": 1,
+            "traceThickness": 0.15
+          },
+          {
+            "x": 1.3701504999999445,
+            "y": -11.842155,
+            "z": 1,
+            "traceThickness": 0.15,
+            "pcb_port_id": "pcb_port_85"
+          }
+        ],
+        "vias": [
+          {
+            "x": 0.10485953487422138,
+            "y": -10.621705947793112
+          },
+          {
+            "x": 1.4406409470972337,
+            "y": -11.348132296447515
+          }
+        ],
+        "jumpers": [],
+        "startPcbPortId": "pcb_port_90",
+        "endPcbPortId": "pcb_port_85"
+      }
+    ]
+  }
+}

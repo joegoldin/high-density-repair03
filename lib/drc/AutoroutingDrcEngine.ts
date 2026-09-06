@@ -6,6 +6,7 @@ import {
   segmentToSegmentMinDistance,
 } from "@tscircuit/math-utils"
 import type { ConnectivityMap } from "circuit-json-to-connectivity-map"
+import { getPcbObstaclePrimitives } from "../utils/getPcbObstaclePrimitives"
 import type {
   SimpleRouteJson,
   SimplifiedPcbTrace,
@@ -78,6 +79,10 @@ export type AutoroutingDrcError = {
   message: string
   center?: Point
   pcb_center?: Point
+  pcb_obstacle_center?: Point
+  pcb_obstacle_shape?:
+    | { type: "rect"; width: number; height: number }
+    | { type: "circle"; radius: number }
   pcb_via_pair_net_relation?: "same_net" | "different_net"
   [key: string]: unknown
 }
@@ -489,45 +494,19 @@ export class AutoroutingDrcEngine {
 
   private compileStaticObstacles() {
     const obstacles: StaticObstacle[] = []
-    const addedSmtPadIds = new Set<string>()
-    const addedPlatedHoleIds = new Set<string>()
-
-    for (const obstacle of this.srj.obstacles) {
-      if (obstacle.layers.length === 0) continue
-      const smtPadId = obstacle.connectedTo.find((id) =>
-        id.startsWith("pcb_smtpad_"),
-      )
-      const platedHoleId = obstacle.connectedTo.find((id) =>
-        id.startsWith("pcb_plated_hole_"),
-      )
-      const pcbPortId = obstacle.connectedTo.find((id) =>
-        id.startsWith("pcb_port_"),
-      )
-      if (!smtPadId && !platedHoleId && !pcbPortId) continue
-
+    for (const {
+      obstacle,
+      obstacleType,
+      publicId,
+      pcbPortId,
+    } of getPcbObstaclePrimitives(this.srj.obstacles)) {
       const isMultiLayer = obstacle.layers.length > 1
-      const obstacleType = isMultiLayer
-        ? ("pcb_plated_hole" as const)
-        : ("pcb_smtpad" as const)
-      const obstacleId = isMultiLayer
-        ? (platedHoleId ??
-          `pcb_plated_hole_${obstacle.center.x.toFixed(
-            3,
-          )}_${obstacle.center.y.toFixed(3)}`)
-        : (smtPadId ??
-          `pcb_smtpad_${obstacle.center.x.toFixed(
-            3,
-          )}_${obstacle.center.y.toFixed(3)}`)
-      const addedIds = isMultiLayer ? addedPlatedHoleIds : addedSmtPadIds
-      if (addedIds.has(obstacleId)) continue
-      addedIds.add(obstacleId)
-
       const isCircular =
         isMultiLayer && Math.abs(obstacle.width - obstacle.height) < 0.001
       obstacles.push({
         kind: "obstacle",
         obstacleType,
-        obstacleId,
+        obstacleId: publicId,
         connectedTo: obstacle.connectedTo,
         x: obstacle.center.x,
         y: obstacle.center.y,
@@ -832,6 +811,11 @@ export class AutoroutingDrcEngine {
       pcb_trace_id: via.traceId,
       pcb_pad_ids: [via.viaId, obstacle.obstacleId],
       pcb_via_ids: [via.viaId],
+      pcb_obstacle_center: { x: obstacle.x, y: obstacle.y },
+      pcb_obstacle_shape:
+        obstacle.radius === undefined
+          ? { type: "rect", width: obstacle.width, height: obstacle.height }
+          : { type: "circle", radius: obstacle.radius },
       minimum_clearance: this.viaToPadClearance,
       actual_clearance: gap,
       center,

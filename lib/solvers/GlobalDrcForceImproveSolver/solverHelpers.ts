@@ -3,7 +3,7 @@ import {
   segmentToSegmentMinDistance,
 } from "@tscircuit/math-utils"
 import type { ConnectivityMap } from "circuit-json-to-connectivity-map"
-import type { AutoroutingDrcEngine } from "../../drc"
+import type { AutoroutingDrcEngine, AutoroutingDrcError } from "../../drc"
 import { RELAXED_DRC_OPTIONS } from "./drcPresets"
 import { PREFERRED_VIA_TO_VIA_CLEARANCE, getDrcErrors } from "./getDrcErrors"
 import { convertToCircuitJson } from "../utils/convertToCircuitJson"
@@ -667,7 +667,10 @@ const getNearestObstacleNearPoint = (
 
 export const getRectRepulsion = (
   point: Point,
-  obstacle: SimpleRouteJson["obstacles"][number],
+  obstacle: Pick<
+    SimpleRouteJson["obstacles"][number],
+    "center" | "width" | "height"
+  >,
   requiredDistance: number,
 ) => {
   const halfWidth = obstacle.width / 2
@@ -711,6 +714,78 @@ export const getRectRepulsion = (
     },
     penetration,
   }
+}
+
+const getViaPadObstacleCenter = (
+  error: Record<string, unknown>,
+): Point | undefined => {
+  if (!("pcb_obstacle_center" in error)) return undefined
+  const center = error.pcb_obstacle_center
+  if (
+    typeof center !== "object" ||
+    center === null ||
+    !("x" in center) ||
+    !("y" in center) ||
+    typeof center.x !== "number" ||
+    typeof center.y !== "number" ||
+    !Number.isFinite(center.x) ||
+    !Number.isFinite(center.y)
+  ) {
+    throw new Error(
+      "pcb_obstacle_center must contain finite x and y coordinates",
+    )
+  }
+  return { x: center.x, y: center.y }
+}
+
+type ViaPadObstacleGeometry = {
+  center: Point
+  shape: NonNullable<AutoroutingDrcError["pcb_obstacle_shape"]>
+  minimumClearance: number
+}
+
+const getViaPadObstacleGeometry = (
+  error: Record<string, unknown>,
+): ViaPadObstacleGeometry | undefined => {
+  const center = getViaPadObstacleCenter(error)
+  if (!("pcb_obstacle_shape" in error)) return undefined
+  const shape = error.pcb_obstacle_shape
+  let checkedShape: ViaPadObstacleGeometry["shape"] | undefined
+  if (typeof shape === "object" && shape !== null && "type" in shape) {
+    if (
+      shape.type === "rect" &&
+      "width" in shape && typeof shape.width === "number" &&
+      Number.isFinite(shape.width) && shape.width > 0 &&
+      "height" in shape && typeof shape.height === "number" &&
+      Number.isFinite(shape.height) && shape.height > 0
+    ) {
+      checkedShape = { type: "rect", width: shape.width, height: shape.height }
+    } else if (
+      shape.type === "circle" &&
+      "radius" in shape && typeof shape.radius === "number" &&
+      Number.isFinite(shape.radius) && shape.radius > 0
+    ) {
+      checkedShape = { type: "circle", radius: shape.radius }
+    }
+  }
+  if (!checkedShape) {
+    throw new Error(
+      "pcb_obstacle_shape must contain positive finite dimensions",
+    )
+  }
+  if (!center) {
+    throw new Error("pcb_obstacle_shape requires pcb_obstacle_center")
+  }
+  const minimumClearance = error.minimum_clearance
+  if (
+    typeof minimumClearance !== "number" ||
+    !Number.isFinite(minimumClearance) || minimumClearance < 0
+  ) {
+    throw new Error(
+      "pcb_obstacle_shape requires finite nonnegative minimum_clearance",
+    )
+  }
+  return { center, shape: checkedShape, minimumClearance }
 }
 
 const getRepulsionPointForError = (
@@ -2415,18 +2490,71 @@ const moveViaAwayFromPoint = (
   via: ViaNode,
   point: Point,
   srj: SimpleRouteJson,
-) => {
+  translateSharedViaSite = false,
+): boolean => {
   const separationX = via.x - point.x
   const separationY = via.y - point.y
   const distance = Math.hypot(separationX, separationY)
   const directionX = distance > POSITION_EPSILON ? separationX / distance : 1
   const directionY = distance > POSITION_EPSILON ? separationY / distance : 0
 
-  return moveVia(
+  return (translateSharedViaSite ? translateSameRootViaSite : moveVia)(
     routes,
     via,
     directionX * MAX_ERROR_MOVE,
     directionY * MAX_ERROR_MOVE,
+    srj,
+  )
+}
+
+const moveViaAwayFromObstacle = (
+  routes: MutableRoute[],
+  via: ViaNode,
+  geometry: ViaPadObstacleGeometry,
+  srj: SimpleRouteJson,
+  allowSharedViaSiteMove: boolean,
+): boolean => {
+  const radius = getSameRootViaSite(routes, via).reduce(
+    (largest, member) => Math.max(largest, member.radius),
+    via.radius,
+  )
+  const requiredDistance =
+    radius + geometry.minimumClearance + POSITION_EPSILON
+  const { center, shape } = geometry
+  let direction: Point
+  let penetration: number
+  if (shape.type === "circle") {
+    const dx = via.x - center.x
+    const dy = via.y - center.y
+    const distance = Math.hypot(dx, dy)
+    direction =
+      distance > 0
+        ? { x: dx / distance, y: dy / distance }
+        : { x: 1, y: 0 }
+    penetration = requiredDistance + shape.radius - distance
+  } else {
+    const repulsion = getRectRepulsion(
+      via, { center, ...shape }, requiredDistance,
+    )
+    if (!repulsion) return false
+    direction = repulsion.direction
+    // Interior centers must also reach the chosen face before clearing its edge.
+    const interiorDepth = Math.max(
+      0,
+      Math.min(
+        shape.width / 2 - Math.abs(via.x - center.x),
+        shape.height / 2 - Math.abs(via.y - center.y),
+      ),
+    )
+    penetration = repulsion.penetration + interiorDepth
+  }
+  if (penetration <= 0) return false
+  const movement = Math.min(MAX_ERROR_MOVE, penetration)
+  return (allowSharedViaSiteMove ? translateSameRootViaSite : moveVia)(
+    routes,
+    via,
+    direction.x * movement,
+    direction.y * movement,
     srj,
   )
 }
@@ -4747,8 +4875,16 @@ export const applyDrcErrorForces = (
   let changed = false
   const vias = collectViaNodes(routes)
   const segments = collectSegments(routes)
+  const movedViaPadSitePoints = new Set<string>()
+  const obstacleGeometries = errors.map(
+    (error): ViaPadObstacleGeometry | undefined =>
+      isViaPadDrcError(error) ? getViaPadObstacleGeometry(error) : undefined,
+  )
 
-  for (const error of errors) {
+  for (const [errorIndex, error] of errors.entries()) {
+    const obstacleCenter = isViaPadDrcError(error)
+      ? getViaPadObstacleCenter(error)
+      : undefined
     const center = getErrorCenter(error)
     if (!center) continue
     let repulsionPoint = center
@@ -4766,7 +4902,8 @@ export const applyDrcErrorForces = (
     const hasTargetedTraceViaMetadata =
       enableTraceViaOwnerTargeting && hasTraceViaMetadata
     if (hasReportedViaIds && !hasTraceViaMetadata) {
-      repulsionPoint = getRepulsionPointForError(srj, error, center)
+      repulsionPoint =
+        obstacleCenter ?? getRepulsionPointForError(srj, error, center)
       const targetRouteIndex = getTraceRouteIndexForError(
         error,
         traceRouteIndexById,
@@ -4802,9 +4939,34 @@ export const applyDrcErrorForces = (
       } else {
         const nearestVia = getNearestVia(vias, center, targetRouteIndex)
         if (nearestVia) {
-          changed =
-            moveViaAwayFromPoint(routes, nearestVia, repulsionPoint, srj) ||
-            changed
+          const sitePointKeys = isViaPadError
+            ? getSameRootViaSite(routes, nearestVia).flatMap((via) =>
+                via.pointIndexes.map((index) => `${via.routeIndex}:${index}`),
+              )
+            : []
+          if (sitePointKeys.some((key) => movedViaPadSitePoints.has(key))) {
+            continue
+          }
+          const geometry = obstacleGeometries[errorIndex]
+          const moved = geometry
+            ? moveViaAwayFromObstacle(
+                routes,
+                nearestVia,
+                geometry,
+                srj,
+                allowSharedViaSiteMove,
+              )
+            : moveViaAwayFromPoint(
+                routes,
+                nearestVia,
+                repulsionPoint,
+                srj,
+                isViaPadError && allowSharedViaSiteMove,
+              )
+          if (moved) {
+            for (const key of sitePointKeys) movedViaPadSitePoints.add(key)
+            changed = true
+          }
         }
       }
       continue

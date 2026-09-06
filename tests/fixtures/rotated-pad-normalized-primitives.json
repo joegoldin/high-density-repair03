@@ -1,0 +1,183 @@
+{
+  "bounds": {
+    "minX": -5,
+    "minY": -5,
+    "maxX": 5,
+    "maxY": 5
+  },
+  "connections": [
+    {
+      "name": "signal",
+      "pointsToConnect": []
+    },
+    {
+      "name": "foreign",
+      "pointsToConnect": []
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "rect",
+      "layers": [
+        "top"
+      ],
+      "center": {
+        "x": -1.2197591975467947,
+        "y": -1.361180553784104
+      },
+      "width": 0.6717514421272199,
+      "height": 0.38890872965260104,
+      "connectedTo": [
+        "pcb_smtpad_rotated",
+        "foreign"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_smtpad_id": "pcb_smtpad_rotated",
+        "pcb_port_id": "pcb_port_rotated"
+      }
+    },
+    {
+      "type": "rect",
+      "layers": [
+        "top"
+      ],
+      "center": {
+        "x": -0.972271824131503,
+        "y": -0.9722718241315029
+      },
+      "width": 0.9545941546018393,
+      "height": 0.38890872965260126,
+      "connectedTo": [
+        "pcb_smtpad_rotated",
+        "foreign"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_smtpad_id": "pcb_smtpad_rotated",
+        "pcb_port_id": "pcb_port_rotated"
+      }
+    },
+    {
+      "type": "rect",
+      "layers": [
+        "top"
+      ],
+      "center": {
+        "x": -0.5833630944789018,
+        "y": -0.5833630944789017
+      },
+      "width": 0.9545941546018393,
+      "height": 0.38890872965260126,
+      "connectedTo": [
+        "pcb_smtpad_rotated",
+        "foreign"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_smtpad_id": "pcb_smtpad_rotated",
+        "pcb_port_id": "pcb_port_rotated"
+      }
+    },
+    {
+      "type": "rect",
+      "layers": [
+        "top"
+      ],
+      "center": {
+        "x": -0.19445436482630057,
+        "y": -0.1944543648263005
+      },
+      "width": 0.9545941546018392,
+      "height": 0.3889087296526011,
+      "connectedTo": [
+        "pcb_smtpad_rotated",
+        "foreign"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_smtpad_id": "pcb_smtpad_rotated",
+        "pcb_port_id": "pcb_port_rotated"
+      }
+    },
+    {
+      "type": "rect",
+      "layers": [
+        "top"
+      ],
+      "center": {
+        "x": 0.19445436482630069,
+        "y": 0.19445436482630044
+      },
+      "width": 0.9545941546018387,
+      "height": 0.3889087296526013,
+      "connectedTo": [
+        "pcb_smtpad_rotated",
+        "foreign"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_smtpad_id": "pcb_smtpad_rotated",
+        "pcb_port_id": "pcb_port_rotated"
+      }
+    },
+    {
+      "type": "rect",
+      "layers": [
+        "top"
+      ],
+      "center": {
+        "x": 0.5833630944789017,
+        "y": 0.5833630944789016
+      },
+      "width": 0.954594154601839,
+      "height": 0.38890872965260104,
+      "connectedTo": [
+        "pcb_smtpad_rotated",
+        "foreign"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_smtpad_id": "pcb_smtpad_rotated",
+        "pcb_port_id": "pcb_port_rotated"
+      }
+    },
+    {
+      "type": "rect",
+      "layers": [
+        "top"
+      ],
+      "center": {
+        "x": 0.9722718241315029,
+        "y": 0.9722718241315028
+      },
+      "width": 0.9545941546018389,
+      "height": 0.38890872965260104,
+      "connectedTo": [
+        "pcb_smtpad_rotated",
+        "foreign"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_smtpad_id": "pcb_smtpad_rotated",
+        "pcb_port_id": "pcb_port_rotated"
+      }
+    },
+    {
+      "type": "rect",
+      "layers": [
+        "top"
+      ],
+      "center": {
+        "x": 1.2197591975467945,
+        "y": 1.3611805537841037
+      },
+      "width": 0.6717514421272203,
+      "height": 0.38890872965260126,
+      "connectedTo": [
+        "pcb_smtpad_rotated",
+        "foreign"
+      ],
+      "circuitJsonMetadata": {
+        "pcb_smtpad_id": "pcb_smtpad_rotated",
+        "pcb_port_id": "pcb_port_rotated"
+      }
+    }
+  ],
+  "layerCount": 2,
+  "minTraceWidth": 0.1,
+  "minTraceToPadEdgeClearance": 0.1
+}

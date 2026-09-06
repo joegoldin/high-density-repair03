@@ -63,6 +63,12 @@ export interface SimpleRouteJson {
 
 export interface Obstacle {
   obstacleId?: string
+  circuitJsonMetadata?: {
+    pcb_smtpad_id?: string
+    pcb_plated_hole_id?: string
+    pcb_via_id?: string
+    pcb_port_id?: string
+  }
   type: "rect"
   layers: string[]
   zLayers?: number[]
